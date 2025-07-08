@@ -1,0 +1,14 @@
+services:
+  - type: web
+    name: api-finanzas
+    runtime: docker
+    plan: free
+    repo: https://github.com/chandro-dev/finanzasPersonales
+    branch: main
+    rootDir: .
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ConnectionStrings__DefaultConnection
+        value: Host=dpg-...render.com;Port=5432;Database=...;Username=...;Password=...

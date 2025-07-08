@@ -1,0 +1,50 @@
+# Build results
+bin/
+obj/
+out/
+
+# User-specific files
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Visual Studio Code
+.vscode/
+.vs/
+# Rider
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# .NET secrets
+secrets.json
+
+# EF Core Migrations snapshot (optional if you regenerate)
+**/Migrations/*ModelSnapshot.cs
+
+# Dotnet tools
+.dotnet-tools/
+
+# Publish output
+publish/
+*.db
+
+# Render local files (si usas CLI)
+render.yaml.local
+
+# Docker artifacts
+*.tar
+.dockerignore
+
+# Environment variables (opcional si guardas archivos de entorno locales)
+.env
+.env.*
+
+# Others
+*.sqlite
