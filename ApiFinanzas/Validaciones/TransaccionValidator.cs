@@ -1,23 +1,27 @@
-﻿using Dominio.Entidades;
+﻿using Dominio.DTOS;
+using Dominio.Entidades;
 using FluentValidation;
 
 namespace ApiFinanzas.Validaciones;
 
-public class TransaccionValidator : AbstractValidator<Transaccion>
+
+public class TransaccionValidator : AbstractValidator<TransaccionDto>
 {
     public TransaccionValidator()
     {
-        RuleFor(t => t.Monto)
-            .NotEqual(0).WithMessage("El monto no puede ser cero.");
+        RuleFor(x => x.Monto)
+            .NotEqual(0).WithMessage("El monto no puede ser cero");
 
-        RuleFor(t => t.Descripcion)
-            .NotEmpty().WithMessage("La descripción es obligatoria.")
-            .MaximumLength(100);
+        RuleFor(x => x.Descripcion)
+            .NotEmpty().WithMessage("La descripción es requerida");
 
-        RuleFor(t => t.CuentaId)
-            .GreaterThan(0).WithMessage("Debe seleccionar una cuenta válida.");
+        RuleFor(x => x.Fecha)
+            .LessThanOrEqualTo(DateTime.Now).WithMessage("La fecha no puede ser en el futuro");
 
-        RuleFor(t => t.CategoriaId)
-            .GreaterThan(0).WithMessage("Debe seleccionar una categoría válida.");
+        RuleFor(x => x.CuentaId)
+            .GreaterThan(0).WithMessage("CuentaId debe ser mayor a 0");
+
+        RuleFor(x => x.CategoriaId)
+            .GreaterThan(0).WithMessage("CategoriaId debe ser mayor a 0");
     }
 }

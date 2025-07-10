@@ -1,6 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+﻿using Dominio.DTOS;
 using Dominio.Entidades;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Persistencia;
 
 namespace ApiFinanzas.Controllers;
@@ -19,23 +20,34 @@ public class TransaccionesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Transaccion>>> Get()
     {
-        return await _context.Transacciones
+        var transacciones = await _context.Transacciones
             .Include(t => t.Categoria)
             .Include(t => t.Cuenta)
             .ToListAsync();
+
+        return Ok(transacciones);
     }
 
     [HttpPost]
-    public async Task<ActionResult> Post(Transaccion transaccion)
+    public async Task<ActionResult> Post([FromBody] TransaccionDto dto)
     {
-        var cuenta = await _context.Cuentas.FindAsync(transaccion.CuentaId);
-        var categoria = await _context.Categorias.FindAsync(transaccion.CategoriaId);
+        var cuenta = await _context.Cuentas.FindAsync(dto.CuentaId);
+        var categoria = await _context.Categorias.FindAsync(dto.CategoriaId);
 
         if (cuenta is null || categoria is null)
-            return BadRequest("Cuenta o categoría no válida.");
+            return BadRequest("Cuenta o Categoría no válidas.");
 
-        // Ajustar el saldo de la cuenta
-        cuenta.SaldoInicial += categoria.EsIngreso ? transaccion.Monto : -transaccion.Monto;
+        var transaccion = new Transaccion
+        {
+            Monto = dto.Monto,
+            Fecha = dto.Fecha,
+            Descripcion = dto.Descripcion,
+            CuentaId = dto.CuentaId,
+            CategoriaId = dto.CategoriaId,
+            EsAutomatica = dto.EsAutomatica
+        };
+
+        cuenta.SaldoInicial += categoria.EsIngreso ? dto.Monto : -dto.Monto;
 
         _context.Transacciones.Add(transaccion);
         await _context.SaveChangesAsync();
@@ -51,11 +63,12 @@ public class TransaccionesController : ControllerBase
             .Include(t => t.Categoria)
             .FirstOrDefaultAsync(t => t.Id == id);
 
-        if (transaccion is null) return NotFound();
+        if (transaccion is null)
+            return NotFound();
 
-        // Revertir el saldo
-        if (transaccion.Cuenta is not null && transaccion.Categoria is not null)
+        if (transaccion.Cuenta != null && transaccion.Categoria != null)
         {
+            // Revertir el saldo
             transaccion.Cuenta.SaldoInicial -= transaccion.Categoria.EsIngreso
                 ? transaccion.Monto
                 : -transaccion.Monto;
