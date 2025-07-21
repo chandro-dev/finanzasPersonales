@@ -12,4 +12,3 @@ services:
         value: Production
       - key: ConnectionStrings__DefaultConnection
         value: Host=191.88.249.172;Port=5431;Database=finanzaspersonales;Username=finanzaspersonales_user;Password=XXD68fsEQsbvUvOYnTuRLquLy4n7iiks;SSL Mode=Disable;
-

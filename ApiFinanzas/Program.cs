@@ -1,4 +1,4 @@
-
+﻿
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +27,19 @@ builder.Services.AddControllers()
     {
         options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
     });
+if (builder.Environment.IsProduction())
+{
+    var envConn = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
+    if (!string.IsNullOrEmpty(envConn))
+    {
+        Console.WriteLine("✔ Variable de entorno encontrada: " + envConn);
+        builder.Configuration["ConnectionStrings:DefaultConnection"] = envConn;
+    }
+    else
+    {
+        Console.WriteLine("⚠ No se encontró la variable ConnectionStrings__DefaultConnection en entorno.");
+    }
+}
 
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
