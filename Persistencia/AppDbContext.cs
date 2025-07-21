@@ -14,6 +14,7 @@ namespace Persistencia
         public DbSet<Cuenta> Cuentas => Set<Cuenta>();
         public DbSet<Categoria> Categorias => Set<Categoria>();
         public DbSet<Transaccion> Transacciones => Set<Transaccion>();
+        public DbSet<ProgramacionAutomatica> ProgramacionAutomaticas => Set<ProgramacionAutomatica>();
 
     }
 }

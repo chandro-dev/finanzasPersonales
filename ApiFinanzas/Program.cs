@@ -1,6 +1,9 @@
 ﻿
+using ApiFinanzas.Servicios;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 using Persistencia;
 
@@ -22,6 +25,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
+builder.Services.AddScoped<IProgramacionService, ProgramacionService>();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
@@ -41,6 +45,10 @@ if (builder.Environment.IsProduction())
     }
 }
 
+builder.Services.AddHangfire(config =>
+    config.UsePostgreSqlStorage(connectionString)); // Usa tu connectionString real
+
+builder.Services.AddHangfireServer();
 var app = builder.Build();
 using (var scope = app.Services.CreateScope())
 {
@@ -58,7 +66,17 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+// Después de app.UseAuthorization()
+app.UseHangfireDashboard("/hangfire");
+using (var scope = app.Services.CreateScope())
+{
+    var programador = scope.ServiceProvider.GetRequiredService<IProgramacionService>();
+    await programador.RegistrarProgramacionesActivas();
+}
 
+
+// Trabajo ejemplo
+BackgroundJob.Enqueue(() => Console.WriteLine("🔥 Trabajo en segundo plano ejecutado."));
 app.MapControllers();
 
 app.Run();

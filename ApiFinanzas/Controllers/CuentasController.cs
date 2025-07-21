@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using System;
-using Persistencia;
+﻿using Dominio.DTOS;
 using Dominio.Entidades;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Persistencia;
+using System;
 
 namespace ApiFinanzas.Controllers
 {
@@ -18,10 +19,43 @@ namespace ApiFinanzas.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Cuenta>>> Get()
+        public async Task<ActionResult<IEnumerable<CuentaRespuestaDto>>> Get()
         {
-            return await _context.Cuentas.ToListAsync();
+            var cuentas = await _context.Cuentas.ToListAsync();
+
+            var result = cuentas.Select(c => new CuentaRespuestaDto
+            {
+                Id = c.Id,
+                Nombre = c.Nombre,
+                SaldoInicial = c.SaldoInicial,
+                Tipo = c.Tipo
+            });
+
+            return Ok(result);
         }
+
+        [HttpPost]
+        public async Task<ActionResult> Post([FromBody] CuentaDto dto)
+        {
+            var cuenta = new Cuenta
+            {
+                Nombre = dto.Nombre,
+                SaldoInicial = dto.SaldoInicial,
+                Tipo = dto.Tipo
+            };
+
+            _context.Cuentas.Add(cuenta);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetById), new { id = cuenta.Id }, new CuentaRespuestaDto
+            {
+                Id = cuenta.Id,
+                Nombre = cuenta.Nombre,
+                SaldoInicial = cuenta.SaldoInicial,
+                Tipo = cuenta.Tipo
+            });
+        }
+
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Cuenta>> GetById(int id)
@@ -30,13 +64,6 @@ namespace ApiFinanzas.Controllers
             return cuenta is null ? NotFound() : Ok(cuenta);
         }
 
-        [HttpPost]
-        public async Task<ActionResult> Post(Cuenta cuenta)
-        {
-            _context.Cuentas.Add(cuenta);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetById), new { id = cuenta.Id }, cuenta);
-        }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, Cuenta cuenta)

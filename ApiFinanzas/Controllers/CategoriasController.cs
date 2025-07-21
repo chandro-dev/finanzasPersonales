@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Dominio.DTOS;
+using Dominio.Entidades;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Persistencia;
-using Dominio.Entidades;
 
 namespace ApiFinanzas.Controllers;
 
@@ -17,24 +18,48 @@ public class CategoriasController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Categoria>>> Get()
+    public async Task<ActionResult<IEnumerable<CategoriaRespuestaDto>>> Get()
     {
-        return await _context.Categorias.ToListAsync();
+        var categorias = await _context.Categorias.ToListAsync();
+
+        var result = categorias.Select(c => new CategoriaRespuestaDto
+        {
+            Id = c.Id,
+            Nombre = c.Nombre,
+            EsIngreso = c.EsIngreso
+        });
+
+        return Ok(result);
     }
+
+    [HttpPost]
+    public async Task<ActionResult> Post([FromBody] CategoriaDto dto)
+    {
+        var categoria = new Categoria
+        {
+            Nombre = dto.Nombre,
+            EsIngreso = dto.EsIngreso
+        };
+
+        _context.Categorias.Add(categoria);
+        await _context.SaveChangesAsync();
+
+
+        return CreatedAtAction(nameof(GetById), new { id = categoria.Id }, new CategoriaRespuestaDto
+        {
+            Id = categoria.Id,
+            Nombre = categoria.Nombre,
+            EsIngreso= categoria.EsIngreso
+            
+        });
+    }
+
 
     [HttpGet("{id}")]
     public async Task<ActionResult<Categoria>> GetById(int id)
     {
         var categoria = await _context.Categorias.FindAsync(id);
         return categoria is null ? NotFound() : Ok(categoria);
-    }
-
-    [HttpPost]
-    public async Task<ActionResult> Post(Categoria categoria)
-    {
-        _context.Categorias.Add(categoria);
-        await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetById), new { id = categoria.Id }, categoria);
     }
 
     [HttpPut("{id}")]
