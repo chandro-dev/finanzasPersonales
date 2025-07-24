@@ -49,7 +49,21 @@ builder.Services.AddHangfire(config =>
     config.UsePostgreSqlStorage(connectionString)); // Usa tu connectionString real
 
 builder.Services.AddHangfireServer();
+builder.Services.AddTransient<EmailService>();
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+
 var app = builder.Build();
+app.UseCors();
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();

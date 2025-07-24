@@ -12,15 +12,18 @@ namespace ApiFinanzas.Controllers
     public class CuentasController : Controller
     {
         private readonly AppDbContext _context;
-
-        public CuentasController(AppDbContext context)
+        private readonly EmailService _emailService;
+        public CuentasController(AppDbContext context, EmailService emailService)
         {
             _context = context;
+            _emailService = emailService;
         }
 
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CuentaRespuestaDto>>> Get()
         {
+            await _emailService.EnviarAsync("alejocarreteroballesteros@gmail.com", "Prueba de correo", "<b>Hola!</b> Este es un correo de prueba.");
+
             var cuentas = await _context.Cuentas.ToListAsync();
 
             var result = cuentas.Select(c => new CuentaRespuestaDto
