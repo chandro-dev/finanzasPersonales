@@ -22,7 +22,7 @@ namespace ApiFinanzas.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<CuentaRespuestaDto>>> Get()
         {
-            await _emailService.EnviarAsync("alejocarreteroballesteros@gmail.com", "Prueba de correo", "<b>Hola!</b> Este es un correo de prueba.");
+            // await _emailService.EnviarAsync("alejocarreteroballesteros@gmail.com", "Prueba de correo", "<b>Hola!</b> Este es un correo de prueba.");
 
             var cuentas = await _context.Cuentas.ToListAsync();
 

@@ -6,6 +6,7 @@ using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.EntityFrameworkCore;
 using Persistencia;
+using System.Text.Json.Serialization;
 
 
 
@@ -29,8 +30,10 @@ builder.Services.AddScoped<IProgramacionService, ProgramacionService>();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {
-        options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+        options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        options.JsonSerializerOptions.PropertyNamingPolicy = null; // ← si quieres PascalCase en respuesta
     });
+
 if (builder.Environment.IsProduction())
 {
     var envConn = Environment.GetEnvironmentVariable("ConnectionStrings__DefaultConnection");
